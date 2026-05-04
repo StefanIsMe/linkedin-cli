@@ -65,7 +65,7 @@ client = LinkedInClient(li_at, jsessionid)
 result = client.post("Hello from the Python API!")
 
 if result.success:
-    print(f"Posted: {result.share_url}")
+    print(f"Posted{': ' + result.share_url if result.share_url else ''}")
 else:
     print(f"Failed: {result.error}")
 ```
@@ -78,4 +78,4 @@ else:
 ## Dependencies
 
 - `curl_cffi` (for Chrome impersonation)
-- Python 3.10+
+- Python 3.9+
