@@ -87,7 +87,7 @@ PYTHONPATH=~/.hermes/skills/social-media/linkedin-api-cli/src \
 
 | Flag | Effect |
 |------|--------|
-| `--visibility PUBLIC` | Visible to anyone (default) |
+| `--visibility ANYONE` | Visible to anyone (default) |
 | `--visibility CONNECTIONS` | Visible to 1st-degree connections only |
 
 ---
