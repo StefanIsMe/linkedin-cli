@@ -1,167 +1,72 @@
-# LinkedIn CLI
+# LinkedIn CLI — Hermes Agent Setup
 
-Unofficial LinkedIn CLI client for posting to LinkedIn via cookie-based authentication.
-
-**⚠️ Warning:** This is not an official LinkedIn product or API. Using this tool may violate LinkedIn's Terms of Service. The developer is not responsible for any account bans or other consequences. Use at your own risk.
+Paste each block below into your Hermes Agent and follow the prompts.
 
 ---
 
-## Features
+## Step 1 — Install the Skill Files
 
-- Post text updates to LinkedIn from the command line
-- Public posts or connections-only visibility
-- JSON output for scripting
-- Cookie-based authentication (li_at + JSESSIONID)
-
----
-
-## Prerequisites
-
-- Python 3.10+
-- `curl_cffi` library
-
-Install dependencies:
-
-```bash
-pip install curl_cffi
+```
+terminal(command="mkdir -p ~/.hermes/skills/social-media/linkedin-api-cli/src/linkedin_api && echo \"dirs created\"")
 ```
 
 ---
 
-## Installation
+## Step 2 — Download the Skill
 
-### Option 1 — Clone and Install
-
-```bash
-git clone https://github.com/YOUR_USERNAME/linkedin-cli.git
-cd linkedin-cli
-pip install -e .
 ```
-
-### Option 2 — Hermes Agent Skill
-
-See [SETUP.md](SETUP.md) for the interactive setup process.
-
----
-
-## Authentication Setup
-
-### Step 1 — Get Your Cookies
-
-1. Open [LinkedIn](https://www.linkedin.com) in Chrome or Firefox and log in
-2. Press **F12** to open Developer Tools
-3. Go to **Application** (Chrome) or **Storage** (Firefox)
-4. Click **Cookies** → `https://www.linkedin.com`
-5. Copy the value of **`li_at`**
-6. Copy the value of **`JSESSIONID`** (may have `ajax:` prefix — include it)
-
-### Step 2 — Save Cookies
-
-Create a file at `~/.hermes/linkedin-auth.env`:
-
-```bash
-export LINKEDIN_LI_AT="your_li_at_cookie_value"
-export LINKEDIN_JSESSIONID="your_jsessionid_cookie_value"
-```
-
-Or use the `.env.example` file:
-
-```bash
-cp .env.example ~/.hermes/linkedin-auth.env
-# Then edit the file and paste your cookies
-```
-
-### Step 3 — Verify
-
-```bash
-python3 -m linkedin_api.cli test
-```
-
-You should see `Authentication: VALID`.
-
----
-
-## Usage
-
-### Command Line
-
-```bash
-# Simple public post
-python3 -m linkedin_api.cli post "Hello LinkedIn!"
-
-# Connections only
-python3 -m linkedin_api.cli post --visibility CONNECTIONS "Team update"
-
-# JSON output
-python3 -m linkedin_api.cli post --json "Check this out!"
-
-# Test auth
-python3 -m linkedin_api.cli test
-```
-
-### Python API
-
-```python
-import sys
-sys.path.insert(0, "/path/to/linkedin-cli/src")
-
-from linkedin_api.client import LinkedInClient, load_auth_from_env
-
-li_at, jsessionid = load_auth_from_env()
-client = LinkedInClient(li_at, jsessionid)
-result = client.post("Hello from Python!")
-
-if result.success:
-    print(f"Posted: {result.share_url}")
-else:
-    print(f"Failed: {result.error}")
+terminal(command="curl -fsSL https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/SKILL.md -o ~/.hermes/skills/social-media/linkedin-api-cli/SKILL.md && echo \"SKILL.md downloaded\"")
 ```
 
 ---
 
-## Cookie Refresh
+## Step 3 — Download the Source Code
 
-LinkedIn cookies expire periodically (usually every few weeks). When authentication starts failing:
-
-1. Go back to LinkedIn in your browser
-2. Make sure you're still logged in
-3. Refresh the cookies in DevTools (F12 → Application → Cookies)
-4. Copy the new `li_at` and `JSESSIONID` values
-5. Update `~/.hermes/linkedin-auth.env`
+```
+terminal(command="cd ~/.hermes/skills/social-media/linkedin-api-cli && for f in __init__.py __main__.py client.py cli.py auth.py; do curl -fsSL \"https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/src/linkedin_api/$f\" -o \"src/linkedin_api/$f\" && echo \"downloaded: $f\"; done")
+```
 
 ---
 
-## Rate Limiting
+## Step 4 — Install curl_cffi Dependency
 
-LinkedIn has aggressive posting limits. Space out posts by at least 1-2 hours between posts to avoid account restrictions.
-
----
-
-## Security Notes
-
-- **Never share your cookies.** They give full account access.
-- Store cookies only in `~/.hermes/linkedin-auth.env` — not in scripts or chat.
-- Cookies in chat history can be exposed — prefer the manual `.env` file approach.
-- Browser auto-extract via CDP is convenient but gives Hermes access to all your browser cookies.
+```
+terminal(command="pip install curl_cffi 2>&1 | tail -3")
+```
 
 ---
 
-## Troubleshooting
+## Step 5 — Set Up Your Cookies
 
-### "Authentication: INVALID" or "cookies may be expired"
-→ Cookies are expired. Get fresh ones from your browser (see Step 1 above).
+See the full guide: https://github.com/StefanIsMe/linkedin-cli/blob/main/SETUP.md
 
-### `ModuleNotFoundError: No module named 'curl_cffi'`
-→ Run `pip install curl_cffi`
+Quick version — create `~/.hermes/linkedin-auth.env` with:
 
-### `TooManyRedirects` error
-→ Usually means cookies are fully expired and LinkedIn is redirecting the auth check.
+```
+export LINKEDIN_LI_AT="YOUR_LI_AT_COOKIE"
+export LINKEDIN_JSESSIONID="YOUR_JSESSIONID_COOKIE"
+```
 
-### 409 Duplicate Detection
-→ LinkedIn flagged your post as a duplicate. Change the text and try again.
+Get these from Chrome DevTools: F12 → Application → Cookies → linkedin.com
 
 ---
 
-## License
+## Step 6 — Verify It Works
 
-MIT — see [LICENSE](LICENSE)
+```
+terminal(command="PYTHONPATH=~/.hermes/skills/social-media/linkedin-api-cli/src /usr/bin/python3 -m linkedin_api.cli test")
+```
+
+You should see **"Authentication: VALID"**.
+
+---
+
+## Post Your First Update
+
+```
+terminal(command="PYTHONPATH=~/.hermes/skills/social-media/linkedin-api-cli/src /usr/bin/python3 -m linkedin_api.cli post \"Hello from LinkedIn CLI!\"")
+```
+
+---
+
+Full documentation: https://github.com/StefanIsMe/linkedin-cli
