@@ -2,7 +2,6 @@
 name: linkedin-api-cli
 description: Unofficial LinkedIn CLI client. Post to LinkedIn feed via Voyager GraphQL API using cookie authentication.
 tags: [linkedin, social-media, api, cli, posting]
-related_skills: [x-api-cli, social-post-queue]
 ---
 
 # LinkedIn API CLI
