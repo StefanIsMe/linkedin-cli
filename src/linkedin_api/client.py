@@ -174,13 +174,14 @@ def load_auth_from_env(env_path: str = None) -> tuple:
     Load auth cookies from environment file.
 
     Args:
-        env_path: Path to .env file (default: ~/.hermes/linkedin-auth.env)
+        env_path: Path to .env file (default: ~/.hermes/linkedin-auth.env,
+                   or LINKEDIN_AUTH_ENV env var if set)
 
     Returns:
         Tuple of (li_at, jsessionid)
     """
     if not env_path:
-        env_path = os.path.expanduser("~/.hermes/linkedin-auth.env")
+        env_path = os.environ.get("LINKEDIN_AUTH_ENV") or os.path.expanduser("~/.hermes/linkedin-auth.env")
 
     if not os.path.exists(env_path):
         raise FileNotFoundError(

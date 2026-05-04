@@ -18,8 +18,9 @@ def load_auth(
     Priority:
     1. Direct parameters
     2. Auth file (.env format)
-    3. Environment variables
-    4. Default auth file (~/.hermes/linkedin-auth.env)
+    3. Environment variables (LINKEDIN_LI_AT, LINKEDIN_JSESSIONID)
+    4. Default auth file (from LINKEDIN_AUTH_ENV env var,
+       or ~/.hermes/linkedin-auth.env)
 
     Returns:
         Tuple of (li_at, csrf_token)
@@ -35,13 +36,14 @@ def load_auth(
     if env_li_at:
         return env_li_at, env_csrf or ""
 
-    default_path = os.path.expanduser("~/.hermes/linkedin-auth.env")
+    default_path = os.environ.get("LINKEDIN_AUTH_ENV") or os.path.expanduser("~/.hermes/linkedin-auth.env")
     if os.path.exists(default_path):
         return _load_env_file(default_path)
 
     raise ValueError(
         "No LinkedIn authentication found. "
-        "Provide li_at directly, set LINKEDIN_LI_AT env var, "
+        "Provide li_at directly, set LINKEDIN_LI_AT/LINKEDIN_JSESSIONID env vars, "
+        "set LINKEDIN_AUTH_ENV to your .env path, "
         "or create ~/.hermes/linkedin-auth.env"
     )
 

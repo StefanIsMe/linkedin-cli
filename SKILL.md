@@ -13,7 +13,7 @@ Unofficial LinkedIn client using cookie-based authentication.
 
 ```bash
 cd ~/.hermes/skills/social-media/linkedin-api-cli
-PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli post "Your post text here"
+PYTHONPATH=src python3 -m linkedin_api.cli post "Your post text here"
 ```
 
 ## Commands
@@ -22,19 +22,19 @@ PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli post "Your post text here"
 
 ```bash
 # Public post
-PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli post "Hello LinkedIn!"
+PYTHONPATH=src python3 -m linkedin_api.cli post "Hello LinkedIn!"
 
 # Connections only
-PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli post --visibility CONNECTIONS "Team update"
+PYTHONPATH=src python3 -m linkedin_api.cli post --visibility CONNECTIONS "Team update"
 
 # JSON output (for scripts)
-PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli post --json "Check this out!"
+PYTHONPATH=src python3 -m linkedin_api.cli post --json "Check this out!"
 ```
 
 ### Test Authentication
 
 ```bash
-PYTHONPATH=src /usr/bin/python3 -m linkedin_api.cli test
+PYTHONPATH=src python3 -m linkedin_api.cli test
 ```
 
 ## Authentication Setup
@@ -51,11 +51,16 @@ Get cookies from browser DevTools (F12 → Application → Cookies → linkedin.
 ## Python API
 
 ```python
+import os
 import sys
-sys.path.insert(0, '~/.hermes/skills/social-media/linkedin-api-cli/src')
+
+# Resolve skill src directory portably
+skill_dir = os.path.expanduser("~/.hermes/skills/social-media/linkedin-api-cli")
+sys.path.insert(0, os.path.join(skill_dir, "src"))
 
 from linkedin_api.client import LinkedInClient, load_auth_from_env
 
+# Uses LINKEDIN_AUTH_ENV env var, or defaults to ~/.hermes/linkedin-auth.env
 li_at, jsessionid = load_auth_from_env()
 client = LinkedInClient(li_at, jsessionid)
 result = client.post("Hello from the Python API!")
