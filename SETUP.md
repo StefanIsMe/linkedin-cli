@@ -22,47 +22,86 @@ Type **"yes"** to proceed or **"exit"** to cancel.
 
 ---
 
-## Step 2 — Create Directory Structure
+## Step 2 — Prerequisite Checks
 
-Run this in terminal:
+Run all checks before making any changes:
+
+**Check Python version (must be 3.9+):**
+```
+terminal(command="python3 --version")
+```
+
+**Check pip is available:**
+```
+terminal(command="pip --version")
+```
+
+**Check curl is available:**
+```
+terminal(command="curl --version | head -1")
+```
+
+**Check if skill is already installed:**
+```
+terminal(command="ls ~/.hermes/skills/social-media/linkedin-api-cli/SKILL.md 2>/dev/null && echo \"skill already installed\" || echo \"skill not installed\"")
+```
+
+**Check which source files are present:**
+```
+terminal(command="ls ~/.hermes/skills/social-media/linkedin-api-cli/src/linkedin_api/ 2>/dev/null || echo \"no source files\"")
+```
+
+**Check if curl_cffi is installed:**
+```
+terminal(command="pip show curl_cffi 2>/dev/null | grep \"Version\" || echo \"curl_cffi not installed\"")
+```
+
+**Check if .env file exists:**
+```
+terminal(command="ls ~/.hermes/linkedin-auth.env 2>/dev/null && echo \".env exists\" || echo \".env not found\"")
+```
+
+---
+
+## Step 3 — Install or Update
+
+**If the skill is NOT installed** — create directories and download everything:
 
 ```
 terminal(command="mkdir -p ~/.hermes/skills/social-media/linkedin-api-cli/src/linkedin_api && echo \"directories created\"")
 ```
 
----
-
-## Step 3 — Download SKILL.md
-
-Download the skill definition file:
-
 ```
 terminal(command="curl -fsSL https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/SKILL.md -o ~/.hermes/skills/social-media/linkedin-api-cli/SKILL.md && echo \"SKILL.md downloaded\"")
 ```
-
----
-
-## Step 4 — Download Source Files
-
-Download all Python source files:
 
 ```
 terminal(command="cd ~/.hermes/skills/social-media/linkedin-api-cli && for f in __init__.py __main__.py client.py cli.py auth.py; do curl -fsSL \"https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/src/linkedin_api/$f\" -o \"src/linkedin_api/$f\" && echo \"downloaded: $f\"; done")
 ```
 
----
-
-## Step 5 — Install Dependency
-
-Install `curl_cffi` — required for API requests:
+**If the skill IS already installed** — check which files are missing or outdated and re-download only those:
 
 ```
-terminal(command="pip install curl_cffi 2>&1 | tail -3")
+terminal(command="cd ~/.hermes/skills/social-media/linkedin-api-cli && for f in __init__.py __main__.py client.py cli.py auth.py; do remote_hash=$(curl -fsSL \"https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/src/linkedin_api/$f\" | sha256sum | cut -d' ' -f1); local_hash=$(sha256sum \"src/linkedin_api/$f\" 2>/dev/null | cut -d' ' -f1); if [ \"$remote_hash\" != \"$local_hash\" ]; then curl -fsSL \"https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/src/linkedin_api/$f\" -o \"src/linkedin_api/$f\" && echo \"updated: $f\"; else echo \"up to date: $f\"; fi; done")
+```
+
+**Check if SKILL.md needs updating:**
+
+```
+terminal(command="remote_hash=$(curl -fsSL https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/SKILL.md | sha256sum | cut -d' ' -f1); local_hash=$(sha256sum ~/.hermes/skills/social-media/linkedin-api-cli/SKILL.md 2>/dev/null | cut -d' ' -f1); if [ \"$remote_hash\" != \"$local_hash\" ]; then curl -fsSL https://raw.githubusercontent.com/StefanIsMe/linkedin-cli/main/SKILL.md -o ~/.hermes/skills/social-media/linkedin-api-cli/SKILL.md && echo \"SKILL.md updated\"; else echo \"SKILL.md up to date\"; fi")
 ```
 
 ---
 
-## Step 6 — Cookie Authentication Setup
+## Step 4 — Install curl_cffi (if not already installed)
+
+```
+terminal(command="pip show curl_cffi 2>/dev/null | grep -q \"Version\" && echo \"curl_cffi already installed\" || pip install curl_cffi 2>&1 | tail -3")
+```
+
+---
+
+## Step 5 — Cookie Authentication Setup
 
 **Choose ONE of the three options below:**
 
@@ -120,7 +159,7 @@ terminal(command="cat > ~/.hermes/linkedin-auth.env << 'EOF'\nexport LINKEDIN_LI
 
 ---
 
-## Step 7 — Verify Authentication
+## Step 6 — Verify Authentication
 
 Run the auth test:
 
@@ -128,12 +167,12 @@ Run the auth test:
 terminal(command="PYTHONPATH=~/.hermes/skills/social-media/linkedin-api-cli/src python3 -m linkedin_api.cli test")
 ```
 
-- If you see **"Authentication: VALID"** — cookies are working, proceed to Step 8
+- If you see **"Authentication: VALID"** — cookies are working, proceed to Step 7
 - If you see **"Authentication: INVALID"** — cookies are expired or incorrect. Get fresh cookies from your browser and update the .env file
 
 ---
 
-## Step 8 — Post Your First Update
+## Step 7 — Post Your First Update
 
 Test with a simple post:
 
@@ -163,7 +202,7 @@ LinkedIn cookies typically expire every few weeks. When authentication starts fa
 2. F12 → Application → Cookies → linkedin.com
 3. Copy fresh `li_at` and `JSESSIONID` values
 4. Edit `~/.hermes/linkedin-auth.env` with the new values
-5. Re-run Step 7 to verify
+5. Re-run Step 6 to verify
 
 ---
 
@@ -182,4 +221,6 @@ terminal(command="rm -rf ~/.hermes/skills/social-media/linkedin-api-cli ~/.herme
 | "Authentication: INVALID" | Cookies expired | Get fresh cookies from browser |
 | "TooManyRedirects" | Cookies expired or LinkedIn blocking | Try fresh cookies |
 | "Authentication failed - too many requests" | LinkedIn rate limiting | Wait 1-2 hours between posts |
-| File not found on import | Source files not downloaded | Re-run Steps 3 and 4 |
+| File not found on import | Source files not downloaded | Re-run Steps 3 |
+| "curl_cffi not found" | Not installed | Re-run Step 4 |
+| "Python version not supported" | Python < 3.9 | Upgrade Python to 3.9 or higher |
